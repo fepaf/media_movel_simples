@@ -1,1 +1,1 @@
-# media_movel_simples
+# media-movel

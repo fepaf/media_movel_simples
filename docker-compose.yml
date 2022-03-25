@@ -1,0 +1,56 @@
+version: "3.9"
+   
+services:
+  db:
+    image: postgres
+    container_name: postgres-container
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=123456
+    restart: always
+    ports:
+      - "5444:5432"
+
+  redis:
+    container_name: redis-container
+    image: redis:alpine
+    
+  api:
+    build: .
+    container_name: api-container
+    command: >
+      bash -c "python manage.py makemigrations
+      && python manage.py migrate 
+      && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_PASSWORD=123456
+    depends_on:
+      - db
+
+  # celery:
+  #   container_name: celery-container
+  #   restart: always
+  #   build: .
+  #   volumes:
+  #     - .:/code
+  #   command: celery -A media_movel_simples worker -l info
+  #   depends_on:
+  #     - redis
+  #     - api
+  
+  # celery_beat:
+  #   container_name: celery-beat-container
+  #   restart: always
+  #   build: .
+  #   volumes:
+  #     - .:/code
+  #   command: celery -A media_movel_simples beat -l info
+  #   depends_on:
+  #     - redis
+  #     - api
+    
